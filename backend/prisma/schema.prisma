@@ -1,0 +1,70 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String        @id @default(uuid())
+  email          String        @unique
+  passwordHash   String
+  settings       Settings?
+  progress       UserProgress?
+  books          Book[]
+  createdAt      DateTime      @default(now())
+}
+
+model Settings {
+  id                 String   @id @default(uuid())
+  userId             String   @unique
+  user               User     @relation(fields: [userId], references: [id])
+  targetReadingTime  String   // "HH:MM"
+  timezone           String   @default("Africa/Lagos")
+  baseWPM            Int      @default(250)
+  selectedAlarmTone  String   @default("default_harsh")
+  lastLockChange     DateTime @default(now())
+}
+
+model UserProgress {
+  id                 String    @id @default(uuid())
+  userId             String    @unique
+  user               User      @relation(fields: [userId], references: [id])
+  isAlarmActive      Boolean   @default(false) // Triggered by Cron, cleared by 100% Quiz
+  activatedAt        DateTime? // When the current alarm cycle started
+  lastAttemptAt      DateTime?
+  currentStreak      Int       @default(0)
+}
+
+model Book {
+  id          String    @id @default(uuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  title       String
+  author      String?
+  isActive    Boolean   @default(false)
+  completedAt DateTime? // Set when last passage is read
+  passages    Passage[]
+  createdAt   DateTime  @default(now())
+}
+
+model Passage {
+  id               String    @id @default(uuid())
+  bookId           String
+  book             Book      @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  chunkIndex       Int
+  content          String
+  estimatedMinutes Int
+  scheduledFor     DateTime? // Always stored in UTC, resolved against user timezone
+  isRead           Boolean   @default(false)
+  quiz             Quiz?
+}
+
+model Quiz {
+  id            String  @id @default(uuid())
+  passageId     String  @unique
+  passage       Passage @relation(fields: [passageId], references: [id], onDelete: Cascade)
+  questionsData Json    // [{q, options:[], correct:int}]
+}

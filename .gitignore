@@ -1,0 +1,37 @@
+# Environment (contains secrets)
+.env
+.env.*
+.env*.local
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+.expo/
+web-build/
+/ios
+/android
+
+# Agent Files & Caches
+.claude/
+*.md
+**/*.md
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# TypeScript
+*.tsbuildinfo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/

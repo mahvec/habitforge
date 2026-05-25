@@ -1,0 +1,36 @@
+{
+  "name": "habitforge",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "mobile",
+    "shared"
+  ],
+  "scripts": {
+    "dev": "concurrently -n \"shared,backend,mobile\" -c \"cyan,green,magenta\" \"npm run dev:shared\" \"npm run dev:backend\" \"npm run dev:mobile\"",
+    "dev:shared": "npm run watch --workspace=shared",
+    "dev:backend": "npm run start:dev --workspace=backend",
+    "dev:mobile": "npm run start --workspace=mobile",
+    "predev": "npm run build --workspace=shared && npm run prisma:generate --workspace=backend",
+    "qa": "node scripts/qa.js",
+    "qa:backend": "cd backend && npx tsc --noEmit && npx prisma validate && npm test -- --passWithNoTests",
+    "qa:mobile": "cd mobile && npx tsc --noEmit && npm test -- --passWithNoTests",
+    "qa:types": "cd shared && npx tsc --noEmit",
+    "install:all": "npm install",
+    "postinstall": "npm run build --workspace=shared"
+  },
+  "devDependencies": {
+    "@types/react": "~19.1.10",
+    "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.19.3",
+    "prisma": "^6.19.3"
+  },
+  "overrides": {
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-test-renderer": "19.1.0"
+  }
+}
